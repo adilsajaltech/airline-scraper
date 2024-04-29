@@ -24,8 +24,10 @@ class get_fight_deatils(APIView):
         data = request.data
 
         # Validate request data
-        required_fields = ['adults_count', 'young_adults_count', 'children_count', 'infants_count',
-                           'departure_date', 'origin_location', 'destination_location']
+        # required_fields = ['adults_count', 'young_adults_count', 'children_count', 'infants_count',
+        #                    'dptDate', 'origin', 'dest']
+        required_fields = ['adult', 'child', 'infant',
+                           'dptDate', 'origin', 'dest']
         for field in required_fields:
             if not data.get(field):
                 return JsonResponse({'Message': f'{field} field is required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -97,23 +99,23 @@ class get_fight_deatils(APIView):
         return res['access_token']
     
 
-    def create_passenger_list(self,adults_count, young_adults_count, children_count, infants_count):
+    def create_passenger_list(self,adult, child, infant):# young_adults_count, children_count, infants_count):
         passengers = []
         
         # Add adults
-        for _ in range(adults_count):
+        for _ in range(adult):
             passengers.append({"passengerTypeCode": "ADT"})
         
-        # Add young adults
-        for _ in range(young_adults_count):
-            passengers.append({"passengerTypeCode": "B15"})
+        # # Add young adults
+        # for _ in range(young_adults_count):
+        #     passengers.append({"passengerTypeCode": "B15"})
         
         # Add children
-        for _ in range(children_count):
+        for _ in range(child):
             passengers.append({"passengerTypeCode": "CHD"})
         
         # Add infants
-        for _ in range(infants_count):
+        for _ in range(infant):
             passengers.append({"passengerTypeCode": "INF"})
 
         # print("the deatils of passengers are: ",passengers)
@@ -121,26 +123,26 @@ class get_fight_deatils(APIView):
         return passengers
     
 
-    def create_trip_itineraries(self,departure_date, origin_location, destination_location, trip_days=None):
-        departure_date = datetime.strptime(departure_date, "%Y-%m-%d")
+    def create_trip_itineraries(self,dptDate, origin, dest, rtnDate=None):
+        dptDate = datetime.strptime(dptDate, "%Y-%m-%d")
         
         # Outbound itinerary
         outbound_itinerary = {
-            "departureDateTime": departure_date.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-            "originLocationCode": origin_location,
-            "destinationLocationCode": destination_location,
+            "departureDateTime": dptDate.strftime("%Y-%m-%dT%H:%M:%S.%f"),
+            "originLocationCode": origin,
+            "destinationLocationCode": dest,
             "isRequestedBound": True
         }
         
         itineraries = [outbound_itinerary]
         
-        if trip_days is not None:
+        if rtnDate is not None:
             # Return trip itinerary
-            return_trip_date = departure_date + timedelta(days=trip_days)  
+            return_trip_date =  datetime.strptime(rtnDate, "%Y-%m-%d") 
             return_trip_itinerary = {
                 "departureDateTime": return_trip_date.strftime("%Y-%m-%dT%H:%M:%S.%f"),
-                "originLocationCode": destination_location,
-                "destinationLocationCode": origin_location,
+                "originLocationCode": dest,
+                "destinationLocationCode": origin,
                 "isRequestedBound": False
             }
             itineraries.append(return_trip_itinerary)
@@ -159,11 +161,11 @@ class get_fight_deatils(APIView):
         return class_mapping.get(ticket_class.lower(), 'Unknown')
     
 
-    def swiss_air(self,adults_count, young_adults_count, children_count, infants_count,departure_date, origin_location, destination_location, trip_days=None):
+    def swiss_air(self,adult, child, infant,dptDate, origin, dest, rtnDate=None):#young_adults_count, children_count, infants_count,dptDate, origin, dest, rtnDate=None):
         # if infants_count:
         #     if infants_count>adults_count:
         #         return "One Infant Per Adult is allowed"
-        if infants_count > adults_count:
+        if infant > adult:
             raise ValueError("One Infant Per Adult is allowed")
         
         # Read the JSON file
@@ -177,8 +179,8 @@ class get_fight_deatils(APIView):
         "commercialFareFamilies": [
             "DECALLFPP"
         ],
-        "travelers": self.create_passenger_list(adults_count, young_adults_count, children_count, infants_count),
-        "itineraries": self.create_trip_itineraries(departure_date, origin_location, destination_location, trip_days),
+        "travelers": self.create_passenger_list(adult, child, infant),# young_adults_count, children_count, infants_count),
+        "itineraries": self.create_trip_itineraries(dptDate, origin, dest, rtnDate),
         "searchPreferences": {
             "showUnavailableEntries": True,
             "showMilesPrice": False
