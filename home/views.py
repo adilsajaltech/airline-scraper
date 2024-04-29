@@ -10,11 +10,8 @@ from rest_framework.renderers import JSONRenderer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from django.http import JsonResponse
-from utils import format_cookies, get_cookies
+from .utils import format_cookies, get_cookies
 
-# Read the JSON file
-with open('cookie.json', 'r') as f:
-    cookie_data = json.load(f)
 # Create your views here.
 
 class get_fight_deatils(APIView):
@@ -41,11 +38,22 @@ class get_fight_deatils(APIView):
             return JsonResponse({'Message': "Success", 'Result': response}, status=status.HTTP_200_OK)
         except:
             try:
+                # Read the JSON file
+                with open('home\cookie.json', 'r') as f:
+                    cookie_data = json.load(f)
                 cookie= get_cookies()
+                print(cookie)
                 formatted_cookie=format_cookies(cookie)
+
+                print(formatted_cookie)
 
                 # Update the 'cookies' field with the formatted cookie value
                 cookie_data['cookies'] = formatted_cookie
+                # Write the updated data back to the file
+                with open('home\cookie.json', 'w') as f:
+                    json.dump(cookie_data, f, indent=2)
+                print("Cookie Changed Successfully")    
+
                 response = self.swiss_air(**data)
 
             except Exception as e:
@@ -155,6 +163,10 @@ class get_fight_deatils(APIView):
         #         return "One Infant Per Adult is allowed"
         if infants_count > adults_count:
             raise ValueError("One Infant Per Adult is allowed")
+        
+        # Read the JSON file
+        with open('home\cookie.json', 'r') as f:
+            cookie_data = json.load(f)
 
             
         url = "https://api-shop.swiss.com//v1/one-booking/search/air-calendars"
