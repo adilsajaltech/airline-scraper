@@ -10,7 +10,7 @@ from rest_framework.renderers import JSONRenderer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from django.http import JsonResponse
-from .utils import format_cookies, get_cookies
+from .utils import format_cookies, get_cookies, main_cookies
 
 # Create your views here.
 
@@ -43,7 +43,7 @@ class get_fight_deatils(APIView):
                     cookie_data = json.load(f)
                 cookie= get_cookies()
                 print(cookie)
-                formatted_cookie=format_cookies(cookie)
+                formatted_cookie=main_cookies(cookie)
 
                 print(formatted_cookie)
 
@@ -55,6 +55,8 @@ class get_fight_deatils(APIView):
                 print("Cookie Changed Successfully")    
 
                 response = self.swiss_air(**data)
+
+                return JsonResponse({'Message': "Success", 'Result': response}, status=status.HTTP_200_OK)
 
             except Exception as e:
                 return JsonResponse({'Message': "Failure", "Result": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
