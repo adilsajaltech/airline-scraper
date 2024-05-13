@@ -22,4 +22,5 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/get_detail/', get_fight_deatils.as_view()),
+    path('api/get_detail2/', get_flight_bound.as_view()),
 ]
