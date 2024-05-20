@@ -156,7 +156,8 @@ class get_fight_deatils(APIView):
         class_mapping = {
             'eco': 'DEMALLFPP',
             'pre-eco': 'DEPALLFPP',
-            'bus': 'DECALLFPP'
+            'bus': 'DECALLFPP',
+            'first' : 'DEFALLFPP'
         }
         return class_mapping.get(ticket_class.lower(), 'Unknown')
     
